@@ -1,0 +1,10 @@
+# Dilamme Job Scheduler - Python Dependencies
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+sqlalchemy>=2.0.36
+pydantic>=2.10.0
+requests>=2.32.0
+python-dotenv>=1.0.0
+
+# Development
+pytest>=8.0.0
