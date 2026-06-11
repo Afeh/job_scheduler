@@ -1,0 +1,28 @@
+[Unit]
+Description=Dilamme Job Scheduler - Background Worker
+After=network.target api.service
+BindsTo=api.service
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/job_scheduler
+
+# Environment variables
+EnvironmentFile=/home/ubuntu/job_scheduler/backend/.env
+Environment=PYTHONUNBUFFERED=1
+
+ExecStart=/home/ubuntu/job_scheduler/.venv/bin/python -m backend.worker
+
+Restart=always
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=true
+ProtectHome=false
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
