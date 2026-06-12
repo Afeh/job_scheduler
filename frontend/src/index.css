@@ -145,6 +145,38 @@ tr:hover { background: rgba(255, 255, 255, 0.02); }
   color: #f8fafc;
 }
 
+/* Dependency Selector */
+.depends-on-list {
+  max-height: 240px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.depends-on-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.9rem;
+}
+
+.depends-on-item:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.depends-on-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
 /* Layout Utilities */
 .grid-cards {
   display: grid;

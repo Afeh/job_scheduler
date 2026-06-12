@@ -15,6 +15,7 @@ type Job = {
   scheduled_at: string | null;
   interval: string | null;
   created_at: string;
+  depends_on: number[];
 };
 
 export default function App() {
@@ -55,6 +56,13 @@ export default function App() {
       priority: Number(fd.get('priority')),
       payload: payloadStr || '{}',
     };
+
+    // Get selected dependency IDs from checkboxes
+    const depCheckboxes = e.currentTarget.querySelectorAll<HTMLInputElement>('input[name="depends_on"]:checked');
+    const dependsOn = Array.from(depCheckboxes).map(cb => Number(cb.value));
+    if (dependsOn.length > 0) {
+      body.depends_on = dependsOn;
+    }
 
     const scheduledAt = fd.get('scheduled_at') as string;
     if (scheduledAt) {
@@ -180,6 +188,7 @@ export default function App() {
                   <th>Retries</th>
                   <th>Scheduled</th>
                   <th>Interval</th>
+                  <th>Depends On</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -193,6 +202,10 @@ export default function App() {
                     <td>{job.retry_count}</td>
                     <td>{formatDate(job.scheduled_at)}</td>
                     <td>{formatInterval(job.interval)}</td>
+                    <td>{job.depends_on.length > 0
+                      ? job.depends_on.map(id => `#${id}`).join(', ')
+                      : <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>—</span>
+                    }</td>
                     <td>
                       {(job.status === 'pending' || job.status === 'processing') && (
                         <button className="danger" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }} onClick={() => handleCancel(job.id)}>
@@ -246,6 +259,28 @@ export default function App() {
             <div className="form-group">
               <label>Payload (JSON)</label>
               <textarea name="payload" rows={4} defaultValue='{"to": "user@example.com"}'></textarea>
+            </div>
+
+            <div className="form-group">
+              <label>Depends On (Optional)</label>
+              <div className="depends-on-list">
+                {jobs.filter(j => j.status === 'pending' || j.status === 'processing' || j.status === 'completed').length === 0 && (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', padding: '0.5rem 0' }}>
+                    No existing jobs to depend on. Create one first.
+                  </div>
+                )}
+                {jobs
+                  .filter(j => j.status === 'pending' || j.status === 'processing' || j.status === 'completed')
+                  .sort((a, b) => a.id - b.id)
+                  .map(job => (
+                    <label key={job.id} className="depends-on-item">
+                      <input type="checkbox" name="depends_on" value={job.id} />
+                      <span className={`badge ${job.status}`} style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>{job.status}</span>
+                      <span style={{ fontWeight: 600 }}>#{job.id}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{formatType(job.type)}</span>
+                    </label>
+                  ))}
+              </div>
             </div>
 
             <button type="submit" style={{ width: '100%' }}>Create Job</button>
