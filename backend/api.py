@@ -84,12 +84,19 @@ async def create_job(
 @app.get("/jobs")
 def get_jobs(db: Session = Depends(get_db)):
     jobs = db.query(Job).order_by(desc(Job.created_at)).all()
-    return [{
-        "id": j.id, "type": j.type, "priority": j.priority, 
-        "status": j.status, "retry_count": j.retry_count,
-        "scheduled_at": j.scheduled_at, "interval": j.interval,
-        "created_at": j.created_at
-    } for j in jobs]
+    result = []
+    for j in jobs:
+        deps = db.query(JobDependency.depends_on_job_id).filter(
+            JobDependency.job_id == j.id
+        ).all()
+        result.append({
+            "id": j.id, "type": j.type, "priority": j.priority, 
+            "status": j.status, "retry_count": j.retry_count,
+            "scheduled_at": j.scheduled_at, "interval": j.interval,
+            "created_at": j.created_at,
+            "depends_on": [d[0] for d in deps]
+        })
+    return result
 
 @app.post("/jobs/{job_id}/cancel")
 async def cancel_job(job_id: int, db: Session = Depends(get_db)):
